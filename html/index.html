@@ -9,81 +9,88 @@
 <script>
 
 // http://learn.jquery.com/using-jquery-core/document-ready/
+// New document to keep states for Interval
 $(document).ready(function(){
-	var timer;
-	startTime();
-	
-	function clock() {
-		var today = new Date();
-		var h = today.getHours();
-		var m = today.getMinutes();
-		var s = today.getSeconds();
-		h = doubleDigit(h);
-		m = doubleDigit(m);
-		s = doubleDigit(s);
-		$('.clock').html(h + ":" + m + ":" + s);
-	}
-	
-	function doubleDigit(number) {
-		if (number < 10) {
-			number = "0" + number
-		};
-		return number;
-	}
-	
-	function startTime() {
-		timer = setInterval(clock,1000)
-	}
-	
-	function stopTime() {
-		clearInterval(timer);
-		// https://www.sitepoint.com/use-jquerys-ajax-function/
-		
-		$.ajax({
-            url:"/server.php",
-            type:"POST",
-            dataType:"json",
-            data:{type:"stopTime",time:new Date().getTime()},
-            ContentType:"application/json",
-            success: function(response){
-               console.log(response);
-            },
-            error: function(err){
-                console.error(err);
+    var timer;
+    startTime();
+
+	// Drawing clock
+    function clock() {
+            var today = new Date();
+            var h = today.getHours();
+            var m = today.getMinutes();
+            var s = today.getSeconds();
+            h = doubleDigit(h);
+            m = doubleDigit(m);
+            s = doubleDigit(s);
+            $('.clock').html(h + ":" + m + ":" + s);
+    }
+
+	// Setting that always show 2 digit
+    function doubleDigit(number) {
+            if (number < 10) {
+                    number = "0" + number
+            };
+            return number;
+    }
+
+	// startup
+    function startTime() {
+            timer = setInterval(clock,1000)
+    }
+
+	// stop function that send timestamp via Ajax
+    function stopTime() {
+        clearInterval(timer);
+        // https://www.sitepoint.com/use-jquerys-ajax-function/
+
+        $.ajax({
+		url:"/server.php",
+		type:"POST",
+		dataType:"json",
+		data:{type:"stopTime",time:new Date().getTime()},
+		ContentType:"application/json",
+		success: function(response){
+			console.log(response);
+		},
+        error: function(err){
+            console.error(err);
+        }
+		})
+
+    }
+
+	// restart function that setup interval and send timestamp via Ajax
+    function restartTime() {
+        timer = setInterval(clock,1000)
+        $.ajax({
+        url:"/server.php",
+        type:"POST",
+        dataType:"json",
+        data:{type:"restartTime",time:new Date().getTime()},
+        ContentType:"application/json",
+        success: function(response){
+           console.log(response);
+        },
+        error: function(err){
+            console.error(err);
+        }
+		})
+
+    }
+
+	// On action click will call stop and restart functions
+    $('.restartTime').on({
+            'click' : function () {
+                    restartTime();
             }
-        })
-		
-	}
-	
-	function restartTime() {
-		timer = setInterval(clock,1000)
-		$.ajax({
-            url:"/server.php",
-            type:"POST",
-            dataType:"json",
-            data:{type:"restartTime",time:new Date().getTime()},
-            ContentType:"application/json",
-            success: function(response){
-               console.log(response);
-            },
-            error: function(err){
-                console.error(err);
+    });
+
+    $('.stopTime').on({
+            'click' : function () {
+                    stopTime();
             }
-        })
-		
-	}
-	
-	$('.restartTime').on({
-		'click' : function () {
-			restartTime();
-		}
-	});
-	
-	$('.stopTime').on({
-		'click' : function () {
-			stopTime();
-		}
-	});
+    });
 })
 
 
